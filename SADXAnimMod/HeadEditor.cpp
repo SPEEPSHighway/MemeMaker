@@ -111,14 +111,12 @@ void writeHeadDisplay(int playerNo) {
 	case 0:
 		if (headFrozen[playerNo]) {
 			DisplayDebugString(5, "Custom Head Controls Enabled, Press A to reset.");
-			if (faceValue[GetCharacterID(playerNo)] > 19)DisplayDebugStringFormatted(6, "Current Face = %d (Values higher than 19 are animations activated with X)", faceValue[GetCharacterID(playerNo)]);
-			else DisplayDebugStringFormatted(6, "Current Face = %d", faceValue[GetCharacterID(playerNo)]);
-
+			DisplayDebugStringFormatted(6, "Current Face = %d", faceValue[GetCharacterID(playerNo)]);
 			if (getEye()) DisplayDebugString(7, "Selected Eye = Left");
 			else DisplayDebugString(8, "Selected Eye = Right");
 		}
 		else {
-			if (getCanHeadFreeze(playerNo)) DisplayDebugString(5, "Custom Head Controls Disabled, Press A to activate.");
+			if (getCanHeadFreeze(playerNo)) DisplayDebugString(5, "Custom Head Controls Disabled, Press A to activate or X to read from face.txt.");
 			else DisplayDebugString(5, "Eggman, Gamma and Super Sonic do not have this data.");
 			if (EntityData1Ptrs[playerNo]->CharID == Characters_Big) DisplayDebugString(7, "NOTE: Big cannot move his head, he has only limited eye movement.");
 		} break;
