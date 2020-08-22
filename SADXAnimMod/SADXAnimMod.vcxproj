@@ -102,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\josh\source\repos\SADXAnimMod\sadx-mod-loader\SADXModLoader\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,14 +141,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EventAnimationPlayer.cpp" />
+    <ClCompile Include="FreeCamera.cpp" />
+    <ClCompile Include="FreeMove.cpp" />
     <ClCompile Include="Functions.h" />
+    <ClCompile Include="HeadEditor.cpp" />
     <ClCompile Include="mod.cpp" />
-    <ClCompile Include="Animations.cpp" />
     <ClCompile Include="NPCMode.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animations.h" />
     <ClInclude Include="EventAnimationPlayer.h" />
+    <ClInclude Include="FreeCamera.h" />
+    <ClInclude Include="FreeMove.h" />
+    <ClInclude Include="HeadEditor.h" />
     <ClInclude Include="NPCMode.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

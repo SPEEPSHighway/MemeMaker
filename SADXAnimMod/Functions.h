@@ -8,3 +8,11 @@ FunctionPointer(void, EV_LookPoint, (ObjectMaster* tp, float x, float y, float z
 ObjectFunc(EV_LookFree, 0x42FFB0);
 FunctionPointer(void, EV_SetFace, (ObjectMaster* tp, char* str), 0x4310D0);
 DataPointer(NJS_MOTION**, SS_PEOPLE_MOTIONS, 0x38F6EA4);
+ObjectFunc(EV_ClrFace, 0x4310F0);
+
+struct AnalogData {
+	long double leftX;
+	long double leftY;
+	long double rightX;
+	long double rightY;
+};

@@ -1,6 +1,4 @@
 #pragma once
 
-void doEventAnimFunction(int playerNo);
-int getEventObject();
-int getEventIndex();
-double getEventSpeed();
+void doEventAnimFunction(int playerNo, AnalogData analogData);
+void displayEventAnimInfo();
