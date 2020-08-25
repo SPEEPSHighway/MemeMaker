@@ -18,3 +18,4 @@ void* getHeadPointer(int characterID);
 void doHeadChecks(int playerNo);
 void stopHeadEdits(int playerNo);
 void writeHeadDisplay(int playerNo);
+void initFaceTableBackup();

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <string>
 
-
+bool halfface = false;
 bool headFrozen[8] = { false };
 std::string customFace;
 int runningFace[8] = { 0 };
@@ -18,6 +18,7 @@ int actCheck = 99;
 bool characterHasBeenSpawned[8] = { 0 };
 int headControlsMode[8] = { 0 };
 bool lookingAtPosition[8] = { 0 };
+FACETBL facetbl2[faceTable_Length];
 
 
 void* getHeadData(int characterID) {
@@ -40,6 +41,10 @@ void* getHeadData(int characterID) {
 		if (!characterHasBeenSpawned[characterID]) goto spawnNewChar;
 		else return AllocateMemory(136);
 	}
+}
+
+void initFaceTableBackup() {
+	for (int i = 0; i < faceTable_Length; i++) facetbl2[i].nbFrame = faceTable[i].nbFrame;
 }
 
 void* getHeadDataS() { return getHeadData(Characters_Sonic); }
@@ -81,6 +86,12 @@ void doHeadChecks(int playerNo) {
 				EntityData1Ptrs[headControlsMode[i] - 3]->Position.y,
 				EntityData1Ptrs[headControlsMode[i] - 3]->Position.z);
 		}
+
+		if (faceValue[GetCharacterID(i)] <= 19 && faceValue[GetCharacterID(i)] > 0) {
+			runningFace[i] = faceValue[i] | (faceValue[i] << 8) | (faceValue[i] << 16);
+			WriteData((int*)((char*)EntityData1Ptrs[i]->field_3C + 0x5C), runningFace);
+			//faceValue[GetCharacterID(playerNo)] = 0;
+		}
 	}
 }
 
@@ -118,6 +129,10 @@ void writeHeadDisplay(int playerNo) {
 		else {
 			if (getCanHeadFreeze(playerNo)) DisplayDebugString(5, "Custom Head Controls Disabled, Press A to activate or X to read from face.txt.");
 			else DisplayDebugString(5, "Eggman, Gamma and Super Sonic do not have this data.");
+
+			if (halfface) DisplayDebugString(6, "Press D-Down to return the speed of face animations to normal."); 
+			else DisplayDebugString(6, "Press D-Up to slow down face animations to match their speed in events.");
+
 			if (EntityData1Ptrs[playerNo]->CharID == Characters_Big) DisplayDebugString(7, "NOTE: Big cannot move his head, he has only limited eye movement.");
 		} break;
 	case 1:
@@ -147,10 +162,10 @@ void doHeadFunctions(int playerNo, double moveSpeed, std::string faceFilePath, A
 			std::getline(subFile, customFace);
 			subFile.close();
 		}
-
 		if (customFace.length() == 0) EV_ClrFace(EV_GetPlayer(playerNo));
 		else EV_SetFace(EV_GetPlayer(playerNo), (char*)customFace.c_str());
 	}
+
 
 	switch (ControllerPointers[playerNo]->PressedButtons) {
 	case Buttons_Left:
@@ -169,7 +184,18 @@ void doHeadFunctions(int playerNo, double moveSpeed, std::string faceFilePath, A
 			headFrozen[playerNo] = false;
 			goto CloseHead;
 		}
-
+		break;
+	case Buttons_Up:
+		if (!headFrozen[playerNo]) {
+			halfface = true;
+			for (int i = 0; i < faceTable_Length; i++) faceTable[i].nbFrame = facetbl2[i].nbFrame * 2;
+		}
+		break;
+	case Buttons_Down:
+		if (!headFrozen[playerNo]) {
+			halfface = false;
+			for (int i = 0; i < faceTable_Length; i++) faceTable[i].nbFrame = facetbl2[i].nbFrame;
+		}
 		break;
 	case Buttons_A:
 		switch (headControlsMode[playerNo]) {
@@ -263,12 +289,6 @@ void doHeadFunctions(int playerNo, double moveSpeed, std::string faceFilePath, A
 			WriteData<1>((int*)(0x4403F9), 0x0C);
 			WriteData<1>((int*)(0x4188BE), 0x02);
 		}
-
-		/*if (faceValue[GetCharacterID(playerNo)] <= 19) {
-			runningFace[playerNo] = 0 | (0 << 8) | (0 << 16);
-			WriteData((int*)((char*)EntityData1Ptrs[playerNo]->field_3C + 0x5C), runningFace);
-			faceValue[GetCharacterID(playerNo)] = 0;
-		}*/
 
 	}
 

@@ -18,6 +18,7 @@ extern "C"
 	bool wasFreeCam;
 	std::string subUpper = "";
 	std::string subLower = "";
+	std::string subVoice = "";
 	std::string subtitleFilePath;
 	char customSubtitle[128];
 	const char* const customMessage[] = { customSubtitle, NULL };
@@ -26,7 +27,7 @@ extern "C"
 	AnalogData analogData = { 0 };
 	int playerNo;
 	std::string faceFilePath;
-	float movementSpeed = 5.0;
+	double movementSpeed = 5.0;
 	bool isEditorEnabled();
 	void editorStart();
 	void editorStop();
@@ -48,6 +49,8 @@ extern "C"
 		WriteCall((void*)0x7B407D, getHeadDataTi); //Tikal
 		WriteCall((void*)0x48883D, getHeadDataA); //Amy
 		WriteCall((void*)0x4909BD, getHeadDataB); //Big
+
+		initFaceTableBackup();
 	}
 
 	extern "C" __declspec(dllexport) void __cdecl OnFrame()
@@ -108,10 +111,15 @@ extern "C"
 				{
 					std::getline(subFile, subUpper);
 					std::getline(subFile, subLower);
+					std::getline(subFile, subVoice);
 					subFile.close();
 				}
-				snprintf(customSubtitle, LengthOfArray(customSubtitle), "\a%s \n%s", subUpper.c_str(), subLower.c_str());
-				DisplayHintText(customMessage, 180);
+
+				if (subVoice.length() != 0) PlayVoice(atoi(subVoice.c_str()));
+				if (!(subUpper.length() == 0 && subLower.length() == 0)) {
+					snprintf(customSubtitle, LengthOfArray(customSubtitle), "\a%s \n%s", subUpper.c_str(), subLower.c_str());
+					DisplayHintText(customMessage, 180);
+				}
 			}
 		}
 		else if (GameState != 16 || CutsceneMode) { //Kill everything if not in normal gameplay.
@@ -276,9 +284,9 @@ extern "C"
 	void doSpeedModifier() {
 		if (ControllerPointers[playerNo]->HeldButtons & Buttons_X && mode != 3) {
 			if (analogData.leftX > 30072.0)
-				if (movementSpeed < 19.9f) movementSpeed = movementSpeed + 0.1f;
+				if (movementSpeed < 19.9) movementSpeed = movementSpeed + 0.1;
 			if (analogData.leftX < -30072.0)
-				if (movementSpeed >= 0.1f) movementSpeed = movementSpeed - 0.1f;
+				if (movementSpeed >= 0.1) movementSpeed = movementSpeed - 0.1;
 		}
 	}
 }

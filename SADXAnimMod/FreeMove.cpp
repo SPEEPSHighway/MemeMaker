@@ -29,7 +29,7 @@ void displayPlayerInfo(int playerNo) {
 	DisplayDebugStringFormatted(7, "PosY = %f", EntityData1Ptrs[playerNo]->Position.y);
 	DisplayDebugStringFormatted(8, "PosZ = %f", EntityData1Ptrs[playerNo]->Position.z);
 	DisplayDebugStringFormatted(10, "RotX = %d", EntityData1Ptrs[playerNo]->Rotation.x);
-	DisplayDebugStringFormatted(11, "RotY = %d", EntityData1Ptrs[playerNo]->Rotation.y);
+	DisplayDebugStringFormatted(11, "RotY = %d", 0x4000 - EntityData1Ptrs[playerNo]->Rotation.y);
 	DisplayDebugStringFormatted(12, "RotZ = %d", EntityData1Ptrs[playerNo]->Rotation.z);
 }
 

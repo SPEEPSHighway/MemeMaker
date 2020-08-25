@@ -10,6 +10,16 @@ FunctionPointer(void, EV_SetFace, (ObjectMaster* tp, char* str), 0x4310D0);
 DataPointer(NJS_MOTION**, SS_PEOPLE_MOTIONS, 0x38F6EA4);
 ObjectFunc(EV_ClrFace, 0x4310F0);
 
+
+
+struct FACETBL
+{
+	BYTE nbFrame;
+	BYTE faceNo;
+};
+
+DataArray(FACETBL, faceTable, 0x91CEC8, 160);
+
 struct AnalogData {
 	long double leftX;
 	long double leftY;

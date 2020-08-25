@@ -42,7 +42,6 @@ void checkCameraMode() {
 	}
 
 	switch (cameraMode) {
-	case 0: CameraType[1] =  2; break;
 	case 1: CameraType[1] =  0; break;
 	case 2: CameraType[1] =  2; break;
 	case 3: CameraType[1] =  1; break;
@@ -52,7 +51,10 @@ void checkCameraMode() {
 
 void doFreeCam(int playerNo, float movementSpeed, AnalogData analogData) {
 	switch (ControllerPointers[playerNo]->PressedButtons) {
-	case Buttons_Up: cameraMode = 0; break;
+	case Buttons_Up:
+		cameraMode = 0;
+		CameraType[1] = 2;
+		break;
 	case Buttons_Left: cameraMode = 1; break;
 	case Buttons_Right: cameraMode = 2; break;
 	case Buttons_Down: cameraMode = 3; break;
