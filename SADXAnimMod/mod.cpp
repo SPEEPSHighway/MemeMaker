@@ -6,6 +6,7 @@
 #include "HeadEditor.h"
 #include "FreeCamera.h"
 #include "FreeMove.h"
+#include "BossSpawner.h"
 
 #include <iostream>
 #include <fstream>
@@ -75,6 +76,10 @@ extern "C"
 				break;
 			case 4:
 				displayNPCModeInfo(playerNo);
+				break;
+			case 5:
+				displayBossSpawnerInfo();
+				break;
 			}
 		}
 
@@ -162,11 +167,13 @@ extern "C"
 			case 4:
 				doNPCModeDisplay(playerNo);
 				break;
+			case 5:
+				doBossSpawner(playerNo);
 			}
 
 			//Change mode with B Button
 			if (ControllerPointers[playerNo]->PressedButtons & Buttons_B) {
-				if (mode < 4) mode++;
+				if (mode < 5) mode++;
 				else mode = 0;
 			}
 
@@ -286,7 +293,7 @@ extern "C"
 			if (analogData.leftX > 30072.0)
 				if (movementSpeed < 19.9) movementSpeed = movementSpeed + 0.1;
 			if (analogData.leftX < -30072.0)
-				if (movementSpeed >= 0.1) movementSpeed = movementSpeed - 0.1;
+				if (movementSpeed > 0.1) movementSpeed = movementSpeed - 0.1;
 		}
 	}
 }

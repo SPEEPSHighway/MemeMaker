@@ -81,16 +81,20 @@ void doHeadChecks(int playerNo) {
 			Camera_Data1->Position.x, Camera_Data1->Position.y, Camera_Data1->Position.z);
 
 		if (headControlsMode[i] > 2) {
-			EV_LookPoint(EV_GetPlayer(playerNo),
+			EV_LookPoint(EV_GetPlayer(i),
 				EntityData1Ptrs[headControlsMode[i] - 3]->Position.x,
 				EntityData1Ptrs[headControlsMode[i] - 3]->Position.y,
 				EntityData1Ptrs[headControlsMode[i] - 3]->Position.z);
 		}
 
 		if (faceValue[GetCharacterID(i)] <= 19 && faceValue[GetCharacterID(i)] > 0) {
-			runningFace[i] = faceValue[i] | (faceValue[i] << 8) | (faceValue[i] << 16);
-			WriteData((int*)((char*)EntityData1Ptrs[i]->field_3C + 0x5C), runningFace);
-			//faceValue[GetCharacterID(playerNo)] = 0;
+			runningFace[GetCharacterID(i)] = faceValue[GetCharacterID(i)] | (faceValue[GetCharacterID(i)] << 8) | (faceValue[GetCharacterID(i)] << 16);
+			WriteData((int*)((char*)EntityData1Ptrs[i]->field_3C + 0x5C), runningFace[GetCharacterID(i)]);
+			//PFaceChange(0, faceValue[GetCharacterID(i)]);
+		}
+
+		if (faceValue[GetCharacterID(i)] > 19) {
+			PFaceChange(i, faceValue[GetCharacterID(i)] - 20);
 		}
 	}
 }
@@ -242,14 +246,16 @@ void doHeadFunctions(int playerNo, double moveSpeed, std::string faceFilePath, A
 
 		switch (ControllerPointers[playerNo]->PressedButtons) {
 		case Buttons_Up: //Increment Face
-			if (faceValue[GetCharacterID(playerNo)] < 19 ||
+			if (faceValue[GetCharacterID(playerNo)] < 50 ||
 				(faceValue[GetCharacterID(playerNo)] < 8 && EntityData1Ptrs[playerNo]->CharID == Characters_Big)) faceValue[GetCharacterID(playerNo)]++;
 			else faceValue[GetCharacterID(playerNo)] = 0;
+			EV_ClrFace(EV_GetPlayer(playerNo));
 			break;
 		case Buttons_Down: //Decrement Face
 			if (faceValue[GetCharacterID(playerNo)] > 0) faceValue[GetCharacterID(playerNo)]--;
 			else if (EntityData1Ptrs[playerNo]->CharID == Characters_Big) faceValue[GetCharacterID(playerNo)] = 7;
-			else faceValue[GetCharacterID(playerNo)] = 19;
+			else faceValue[GetCharacterID(playerNo)] = 50;
+			EV_ClrFace(EV_GetPlayer(playerNo));
 			break;
 		default:
 			break;

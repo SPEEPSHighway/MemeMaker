@@ -9,7 +9,13 @@ ObjectFunc(EV_LookFree, 0x42FFB0);
 FunctionPointer(void, EV_SetFace, (ObjectMaster* tp, char* str), 0x4310D0);
 DataPointer(NJS_MOTION**, SS_PEOPLE_MOTIONS, 0x38F6EA4);
 ObjectFunc(EV_ClrFace, 0x4310F0);
-
+FunctionPointer(void, PFaceChange, (int pno, int face), 0x440740);
+FunctionPointer(void, PFaceCancel, (int pno), 0x440770);
+FunctionPointer(void, CreateChaos0, (float pos_x, float pos_y, float pos_z,
+	int ang_x, int ang_y, int ang_z, signed int cng_int), 0x6EE930);
+VoidFunc(DeleteChaos0, 0x6EDAB0);
+FunctionPointer(ObjectMaster*, GetChaos0, (), 0x6EDCD0);
+FunctionPointer(void, SetSclChaos0, (float scl_x, float scl_y, float scl_z), 0x6EDDB0);
 
 
 struct FACETBL

@@ -147,8 +147,10 @@
     <ClCompile Include="HeadEditor.cpp" />
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="NPCMode.cpp" />
+    <ClCompile Include="BossSpawner.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BossSpawner.h" />
     <ClInclude Include="EventAnimationPlayer.h" />
     <ClInclude Include="FreeCamera.h" />
     <ClInclude Include="FreeMove.h" />

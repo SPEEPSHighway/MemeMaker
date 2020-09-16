@@ -131,7 +131,7 @@ int pachacamacAnims[] = {
 int tikalChaoAnims[] = {
 	0x3C84830, 0x3C84838,
 	0x3C84C40, 0x3C84C48, 0x3C84C50, 0x3C84C58, 0x3C84C60, 0x3C84C68, //Tikal's Chao
-	0x3C84EBC, 0x3C84818, 0x3C84CB0, 0x3C84820//Tikal's Chao
+	0x3C84EBC//Tikal's Chao
 };
 
 int eggMobileAnims[] = {
@@ -256,7 +256,7 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 	default:
 		if (object >= 10 && object <= 17) size = LengthOfArray(emeraldAnims); //Emeralds
 		if ((object >= 19 && object <= 22) || (object >= 43 && object <= 44)) size = 5; //Animations
-		if (object >= 23 && object <= 38) size = 6; //Animations
+		if (object >= 23 && object <= 42) size = 6; //Animations
 		break;
 	}
 	size--;
@@ -265,9 +265,11 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 
 	if (ControllerPointers[playerNo]->HeldButtons & Buttons_X) {
 		if (analogData.leftX > 30072.0)
-			if (animSpeed < 5.0) animSpeed = animSpeed + 0.1;
-		if (analogData.leftX < -30072.0)
-			if (animSpeed >= 0.0) animSpeed = animSpeed - 0.1;
+			if (animSpeed < 4.9) animSpeed = animSpeed + 0.1;
+		if (analogData.leftX < -30072.0) {
+			if (animSpeed > 0.0) animSpeed = animSpeed - 0.1;
+			if (animSpeed < 0.0) animSpeed = 0.0;
+		}
 	}
 
 	switch (ControllerPointers[playerNo]->PressedButtons) {
@@ -513,5 +515,7 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 
 		EV_ClrAction(EV_GetPlayer(playerNo));
 		if(anim != 0) EV_SetAction(EV_GetPlayer(playerNo), anim, tex, (float)animSpeed, loop, 0);	
+		//LoadPVM("SONIC", &SONIC_TEXLIST);
+		//if (anim != 0) EV_SetMotion(EV_GetPlayer(playerNo), SONIC_ACTIONS[1]->object, anim->motion, &SONIC_TEXLIST, (float)animSpeed, loop, 0);
 	}
 }

@@ -36,6 +36,9 @@
     <ClCompile Include="Functions.h">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="BossSpawner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NPCMode.h">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FreeMove.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BossSpawner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
