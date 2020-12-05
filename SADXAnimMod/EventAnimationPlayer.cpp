@@ -6,9 +6,53 @@
 
 int index = 0;
 int object = 0;
+NJS_ACTION* anim;
+NJS_ACTION** animplane; //Needed for compatibility with DC Chars
+NJS_TEXLIST* tex;
 NJS_ACTION npcEventAnim;
 double animSpeed = 0.5;
 long double leftX;
+std::string objectName;
+std::string objectTexName;
+
+enum oList
+{
+	oList_player,
+	oList_event,
+	oList_plane,
+	oList_froggy,
+	oList_zero,
+	oList_police,
+	oList_chaos0,
+	oList_chaos6,
+	oList_chaos7,
+	oList_pachacamac,
+	oList_eggmobile,
+	oList_tikalchao,
+	oList_greeneme,
+	oList_blueeme,
+	oList_purpleeme,
+	oList_redeme,
+	oList_cyaneme,
+	oList_whiteeme,
+	oList_yelloweme,
+	oList_blackeme,
+	oList_policecar,
+	oList_npchotel1 = oList_policecar + 21,
+	oList_npchotel2,
+	oList_npchotel3,
+	oList_burgerf,
+	oList_trainstaff,
+	oList_burgerm,
+};
+
+int npcListStart = oList_policecar + 1;
+int npcListEnd = oList_policecar + 20;
+int objectListSize = oList_burgerm;
+
+NJS_ACTION * froggyAnims[] = {
+	&FroggyAction, &FroggyAction2, &FroggyAction3, (NJS_ACTION*)0x2CBB4DC
+};
 
 int bigEventAnims[] = {
 		0x3C846C8, 0x3C846D0, 0x3C846D8, 0x3C846E0, 0x3C846E8, 0x3C846F0, // ??
@@ -149,31 +193,10 @@ int ssPoliceAnims[] = {
 };
 
 int tornadoAnims[] = {
-	0x3261BBC, //&EV_TR1_WITH_SONIC_TEXLIST
-	0x2C0DB54 //&stru_2BF513C
+	0x6BF039, 0x6B9527, 0x62AC2C, 0x6CDE0E
 };
 
-
-static const std::string objectList[] = {
-	"Player Character (Regular)",
-	"Player Character (Event)",
-	"ZERO",
-	"SS POLICE",
-	"CHAOS 0",
-	"CHAOS 6",
-	"PERFECT CHAOS",
-	"PACHACAMAC",
-	"EGG MOBILE EGGMAN",
-	"TIKAL'S CHAO",
-	"CHAOS EMERALD (GREEN)",
-	"CHAOS EMERALD (BLUE)",
-	"CHAOS EMERALD (PURPLE)",
-	"CHAOS EMERALD (RED)",
-	"CHAOS EMERALD (SKY)",
-	"CHAOS EMERALD (WHITE)",
-	"CHAOS EMERALD (YELLOW)",
-	"CHAOS EMERALD (BLACK)",
-	"SS POLICE CAR",
+static const std::string npcList[] = {
 	"NPC MALE 1",
 	"NPC MALE 2",
 	"NPC MALE 3",
@@ -194,18 +217,11 @@ static const std::string objectList[] = {
 	"NPC BOY 2",
 	"NPC BOY 3",
 	"NPC BOY 4",
-	"NPC HOTEL FEMALE 1",
-	"NPC HOTEL FEMALE 2",
-	"NPC HOTEL FEMALE 3",
-	"NPC BURGER SHOP FEMALE",
-	"NPC TRAIN STATION WORKER",
-	"NPC BURGER SHOP MALE"
 };
-
 
 void displayEventAnimInfo() {
 	DisplayDebugString(4, "Event Animation Player");
-	DisplayDebugStringFormatted(5, "Object: %s", objectList[object].c_str());
+	DisplayDebugStringFormatted(5, "Object: %s", objectName.c_str());
 	DisplayDebugStringFormatted(6, "Index: %d", index);
 	DisplayDebugStringFormatted(7, "Animation Speed: %f", animSpeed);
 	DisplayDebugString(8, "Press A to Play.");
@@ -217,46 +233,365 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 	int loop = 0;
 	int size = 0;
 	DataPointer(NJS_ACTION, stru_2DC028C, 0x2DC028C);
+	NonStaticFunctionPointer(void, chg_frogshape, (char), 0x5F1F60);
+
+	VoidFunc(TR2_RemoveSonic, 0x6DA2B0);
+	VoidFunc(TR2_AddSonic, 0x6DA2C0);
+	VoidFunc(TR1_RemoveSonic, 0x6DF420);
+	VoidFunc(TR1_AddSonic, 0x6DF440);
 
 	switch (object) {
-	case 0:
+	case oList_player: //player
+		objectName = "Player Character (Regular)";
 		switch (EntityData1Ptrs[playerNo]->CharID) {
-		case 0:
+		case Characters_Sonic:
 			if (CurrentLevel == LevelIDs_PerfectChaos || GetModuleHandle(L"sadx-super-sonic")) size = 149;
 			else size = 130;
+			anim = SONIC_ACTIONS[index];
+			if ((index >= 130 && index <= 133) || (index >= 138 && index <= 144)) {
+				tex = &SUPERSONIC_TEXLIST;
+				objectTexName = "SUPERSONIC";
+			}
+			else
+			{
+				objectTexName = "SONIC";
+				tex = &SONIC_TEXLIST;
+			}
 			break;
-		case 1: size = 25; break;
-		case 2: size = 114; break;
-		case 3: size = 90; break;
-		case 4: size = 9; break;
-		case 5: size = 80; break;
-		case 6: size = 78; break;
-		case 7: size = 90; break;
-		} break;
-	case 1:
+		case Characters_Eggman:
+			size = 25;
+			anim = Eggman_AniList[index].Animation;
+			objectTexName = "EGGMAN";
+			tex = &EGGMAN_TEXLIST;
+			break;
+		case Characters_Tails:
+			size = 114;
+			anim = MILES_ACTIONS[index];
+			tex = &MILES_TEXLIST;
+			objectTexName = "MILES";
+			break;
+		case Characters_Knuckles:
+			size = 90;
+			anim = KNUCKLES_ACTIONS[index];
+			tex = &KNUCKLES_TEXLIST;
+			objectTexName = "KNUCKLES";
+			break;
+		case Characters_Tikal:
+			size = 9;
+			anim = Tikal_Animations[index].Animation;
+			tex = &TIKAL_TEXLIST;
+			objectTexName = "TIKAL";
+			break;
+		case Characters_Amy:
+			size = 80;
+			anim = AMY_ACTIONS[index];
+			tex = &AMY_TEXLIST;
+			objectTexName = "AMY";
+			break;
+		case Characters_Gamma:
+			size = 78;
+			anim = E102_ACTIONS[index];
+			tex = &E102_TEXLIST;
+			objectTexName = "E102";
+			break;
+		case Characters_Big:
+			size = 90;
+			anim = BIG_ACTIONS[index];
+			tex = &BIG_TEXLIST; 
+			objectTexName = "BIG";
+			break;
+		} 
+		break;
+	case oList_event:
+		objectName = "Player Character (Event)";
 		switch (EntityData1Ptrs[playerNo]->CharID) {
-		case 0: size = LengthOfArray(sonicEventAnims); break;
-		case 1: size = LengthOfArray(eggmanEventAnims); break;
-		case 2: size = LengthOfArray(tailsEventAnims); break;
-		case 3: size = LengthOfArray(knucklesEventAnims); break;
-		case 4: size = LengthOfArray(tikalEventAnims); break;
-		case 5: size = LengthOfArray(amyEventAnims); break;
-		case 6: size = LengthOfArray(e102EventAnims); break;
-		case 7: size = LengthOfArray(bigEventAnims); break;
+		case Characters_Sonic:
+			size = LengthOfArray(sonicEventAnims);
+			anim = (NJS_ACTION*)sonicEventAnims[index];
+			tex = &SONIC_TEXLIST;
+			objectTexName = "SONIC";
+			break;
+		case Characters_Eggman:
+			size = LengthOfArray(eggmanEventAnims);
+			anim = (NJS_ACTION*)eggmanEventAnims[index];
+			tex = &EGGMAN_TEXLIST;
+			objectTexName = "EGGMAN";
+			break;
+		case Characters_Tails:
+			size = LengthOfArray(tailsEventAnims);
+			anim = (NJS_ACTION*)tailsEventAnims[index];
+			tex = &MILES_TEXLIST;
+			objectTexName = "MILES";
+			break;
+		case Characters_Knuckles:
+			size = LengthOfArray(knucklesEventAnims);
+			anim = (NJS_ACTION*)knucklesEventAnims[index];
+			tex = &KNUCKLES_TEXLIST;
+			objectTexName = "KNUCKLES";
+			break;
+		case Characters_Tikal:
+			size = LengthOfArray(tikalEventAnims);
+			anim = (NJS_ACTION*)tikalEventAnims[index];
+			tex = &TIKAL_TEXLIST;
+			objectTexName = "TIKAL";
+			break;
+		case Characters_Amy:
+			size = LengthOfArray(amyEventAnims);
+			anim = (NJS_ACTION*)amyEventAnims[index];
+			tex = &AMY_TEXLIST;
+			objectTexName = "AMY";
+			break;
+		case Characters_Gamma:
+			size = LengthOfArray(e102EventAnims);
+			anim = (NJS_ACTION*)e102EventAnims[index];
+			tex = &E102_TEXLIST;
+			objectTexName = "E102";
+			break;
+		case Characters_Big:
+			size = LengthOfArray(bigEventAnims);
+			anim = (NJS_ACTION*)bigEventAnims[index];
+			tex = &BIG_TEXLIST;
+			objectTexName = "BIG";
+			break;
 		} break;
-	case 2: size = ZERO_Animations_Length; break; //ZERO
-	case 3: size = LengthOfArray(ssPoliceAnims); break; //SS Police
-	case 4: size = 17; break; //Chaos 0
-	case 5: size = Chaos6_Animations_Length; break;
-	case 6: size = PerfectChaos_AnimList_Length; break;
-	case 7: size = LengthOfArray(pachacamacAnims); break; //Pachacamac
-	case 8: size = LengthOfArray(eggMobileAnims); break; //Egg Mobile
-	case 9: size = LengthOfArray(tikalChaoAnims); break; //Tikal's Chao
-	case 18: size = 1; break; //SS Cop Car
+	case oList_plane:
+		size = 6;
+		objectName = "Planes";
+		switch (index) {
+		case 0: //Tornado 1
+			TR1_RemoveSonic();
+			tex = &EV_TR1_WITH_SONIC_TEXLIST;
+			objectTexName = "EV_TR1_WITH_SONIC";
+			animplane = (NJS_ACTION**)tornadoAnims[0];
+			break;
+		case 1: //Tornado 1 w/ Sonic
+			TR1_AddSonic();
+			tex = &EV_TR1_WITH_SONIC_TEXLIST;
+			objectTexName = "EV_TR1_WITH_SONIC";
+			animplane = (NJS_ACTION**)tornadoAnims[0];
+			break;
+		case 2: //Tornado 2 
+			TR2_RemoveSonic();
+			tex = (NJS_TEXLIST*)0x2BF513C;
+			objectTexName = "EV_TR2BEFORE_WITH_SONIC";
+			animplane = (NJS_ACTION**)tornadoAnims[1];
+			break;
+		case 3://Tornado 2 w/ Sonic
+			TR2_AddSonic();
+			tex = (NJS_TEXLIST*)0x2BF513C;
+			objectTexName = "EV_TR2BEFORE_WITH_SONIC";
+			animplane = (NJS_ACTION**)tornadoAnims[1];
+			break;
+		case 4: //Tornado 2 Transforming
+			tex = &SHOOTING2_TEXLIST;
+			objectTexName = "SHOOTING2";
+			animplane = (NJS_ACTION**)tornadoAnims[2];
+			break;
+		case 5: //Tornado 2 Transformed
+			tex = (NJS_TEXLIST*)0x32D6548;
+			objectTexName = "EV_TR2CHANGE_WITH_SONIC";
+			animplane = (NJS_ACTION**)tornadoAnims[3];
+			break;
+		}
+		break;
+	case oList_froggy:
+		objectName = "FROGGY";
+		size = LengthOfArray(froggyAnims);
+		anim = froggyAnims[index];
+		tex = (NJS_TEXLIST *)0x2FF2960;
+		objectTexName = "SHAPE_FROG";
+		break;
+	case oList_zero:
+		objectName = "ZERO";
+		size = ZERO_Animations_Length;
+		anim = ZERO_Animations[index].Animation;
+		tex = &EGGROB_TEXLIST;
+		objectTexName = "EGGROB";
+		break; //ZERO
+	case oList_police:
+		objectName = "SS POLICE";
+		size = LengthOfArray(ssPoliceAnims);
+		objectTexName = "MP_10000_POLICE";
+		anim = (NJS_ACTION*)ssPoliceAnims[index];
+		tex = &stru_3375ED4;
+		break; //SS Police
+	case oList_chaos0:
+		objectName = "CHAOS 0";
+		size = 17;
+		objectTexName = "CHAOS0";
+		anim = BOSSCHAOS0_ACTIONS[index];
+		tex = BOSSCHAOS0_TEXLISTS[0];
+		break; //Chaos 0
+	case oList_chaos6:
+		objectName = "CHAOS 6";
+		size = Chaos6_Animations_Length;
+		objectTexName = "CHAOS6";
+		anim = Chaos6_Animations[index].Animation;
+		tex = &CHAOS6_TEXLIST;
+		break;
+	case oList_chaos7:
+		objectName = "PERFECT CHAOS";
+		size = PerfectChaos_AnimList_Length;
+		objectTexName = "CHAOS7_0";
+		anim = PerfectChaos_AnimList[index].Animation;
+		tex = &CHAOS7_0_TEXLIST;
+		break;
+	case oList_pachacamac:
+		objectName = "PACHACAMAC";
+		size = LengthOfArray(pachacamacAnims);
+		objectTexName = "EV_K_PATYA";
+		anim = (NJS_ACTION*)pachacamacAnims[index];
+		tex = ADV03_TEXLISTS[3];
+		break; //Pachacamac
+	case oList_eggmobile:
+		objectName = "EGG MOBILE";
+		size = LengthOfArray(eggMobileAnims);
+		objectTexName = "EV_EGGMOBLE0";
+		anim = (NJS_ACTION*)eggMobileAnims[index];
+		tex = &EV_EGGMOBLE0_TEXLIST;
+		break; //Egg Mobile
+	case oList_tikalchao:
+		objectName = "TIKAL'S CHAO";
+		size = LengthOfArray(tikalChaoAnims);
+		objectTexName = "EV_ALIFE";
+		anim = (NJS_ACTION*)tikalChaoAnims[index];
+		tex = ADV03_TEXLISTS[1];
+		break; //Tikal's Chao
+	case oList_greeneme:
+		objectName = "GREEN EMERALD";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_GREEN";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_GREEN_TEXLIST;
+		break; //Chaos Emeralds 
+	case oList_blueeme:
+		objectName = "EMERALD (BLUE)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_BLUE";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_BLUE_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_purpleeme:
+		objectName = "EMERALD (PURPLE)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_PURPLE";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_PURPLE_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_redeme:
+		objectName = "EMERALD (RED)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_RED";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_RED_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_cyaneme:
+		objectName = "EMERALD (CYAN)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_SKY";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_SKY_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_whiteeme:
+		objectName = "EMERALD (WHITE)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_WHITE";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_WHITE_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_yelloweme:
+		objectName = "EMERALD (YELLOW)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_YELLOW";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_YELLOW_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_blackeme:
+		objectName = "EMERALD (DRAINED)";
+		size = LengthOfArray(emeraldAnims);
+		objectTexName = "M_EM_BLACK";
+		anim = (NJS_ACTION*)emeraldAnims[index];
+		tex = &M_EM_BLACK_TEXLIST;
+		break; //Chaos Emeralds  
+	case oList_policecar:
+		objectName = "SS POLICE CAR";
+		size = 1;
+		objectTexName = "SSPATCAR_BODY";
+		anim = (NJS_ACTION*)&stru_2DC028C;
+		tex = &SSPATCAR_BODY_TEXLIST;
+		break; //SS Cop Car
+	case oList_npchotel1:
+		objectName = "NPC HOTEL FEMALE 1";
+		size = 6;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[20];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
+		objectTexName = "SS_MIZUGI";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[8];
+		break;
+	case oList_npchotel2:
+		objectName = "NPC HOTEL FEMALE 2";
+		size = 6;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[21];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
+		objectTexName = "SS_MIZUGI";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[8];
+		break; //SS NPCs
+	case oList_npchotel3:
+		objectName = "NPC HOTEL FEMALE 3";
+		size = 6;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[22];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
+		objectTexName = "SS_MIZUGI";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[8];
+		break; //SS NPCs
+	case oList_burgerf:
+		objectName = "NPC BURGER SHOP FEMALE";
+		size = 6;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[23];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
+		objectTexName = "SS_BURGER";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[9];
+		break; //SS NPCs
+	case oList_trainstaff:
+		objectName = "NPC TRAIN WORKER";
+		size = 5;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[24];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index];
+		objectTexName = "SS_EKIIN";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[7];
+		break; //SS NPCs
+	case oList_burgerm:
+		objectName = "NPC BURGER SHOP MALE";
+		size = 5;
+		npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[25];
+		npcEventAnim.motion = SS_PEOPLE_MOTIONS[index];
+		objectTexName = "SS_BURGER";
+		anim = (NJS_ACTION*)&npcEventAnim;
+		tex = ADV00_TEXLISTS[9];
+		break; //SS NPCs
 	default:
-		if (object >= 10 && object <= 17) size = LengthOfArray(emeraldAnims); //Emeralds
-		if ((object >= 19 && object <= 22) || (object >= 43 && object <= 44)) size = 5; //Animations
-		if (object >= 23 && object <= 42) size = 6; //Animations
+		//NPCs
+		if (object >= npcListStart && object <= npcListEnd) {
+			switch (getNPCMotion(object - npcListStart, 3)) {
+			case 0: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index]; break;
+			case 1: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5]; break;
+			case 2: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 11];  break;
+			case 3: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 18]; break;
+			case 4: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 24]; break;
+			}
+			objectName = npcList[object - npcListStart];
+			objectTexName = "SS_PEOPLE";
+			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[object - npcListStart];
+			anim = (NJS_ACTION*)&npcEventAnim;
+			tex = ADV00_TEXLISTS[6];
+		}
+		if (object >= npcListStart && object <= (npcListStart + 3)) size = 5; //Animations
+		if (object >= (npcListStart + 4) && object <= npcListEnd) size = 6; //Animations
 		break;
 	}
 	size--;
@@ -278,7 +613,7 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 	case Buttons_Left:
 		if (index > 0) index -= 1; break;
 	case Buttons_Up:
-		if (object < 44) object++;
+		if (object < objectListSize) object++;
 		else object = 0;
 		index = 0;
 		break;
@@ -289,233 +624,17 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 		}
 		break;
 	case Buttons_A:
-		NJS_ACTION* anim = 0;
-		NJS_TEXLIST* tex = 0;
-
 		if (ControllerPointers[playerNo]->HeldButtons & Buttons_X) loop = 1;
 		else loop = 0;
 
-		switch (object) {
-		case 0:
-			switch (EntityData1Ptrs[playerNo]->CharID) {
-			case 0:
-				anim = SONIC_ACTIONS[index];
-				if((index >= 130 && index <= 133) || (index >= 138 && index <= 144)) tex = &SUPERSONIC_TEXLIST;
-				else tex = &SONIC_TEXLIST;
-				break;
-			case 1:
-				anim = Eggman_AniList[index].Animation;
-				tex = &EGGMAN_TEXLIST;
-				break;
-			case 2:
-				anim = MILES_ACTIONS[index];
-				tex = &MILES_TEXLIST;
-				break;
-			case 3:
-				anim = KNUCKLES_ACTIONS[index];
-				tex = &KNUCKLES_TEXLIST;
-				break;
-			case 4:
-				anim = Tikal_Animations[index].Animation;
-				tex = &TIKAL_TEXLIST;
-				break;
-			case 5:
-				anim = AMY_ACTIONS[index];
-				tex = &AMY_TEXLIST;
-				break;
-			case 6:
-				anim = E102_ACTIONS[index];
-				tex = &E102_TEXLIST;
-				break;
-			case 7:
-				anim = BIG_ACTIONS[index];
-				tex = &BIG_TEXLIST;
-				break;
-			} break;
-		case 1:
-			switch (EntityData1Ptrs[playerNo]->CharID) {
-			case 0:
-				anim = (NJS_ACTION*)sonicEventAnims[index];
-				tex = &SONIC_TEXLIST;
-				break;
-			case 1:
-				anim = (NJS_ACTION*)eggmanEventAnims[index];
-				tex = &EGGMAN_TEXLIST;
-				break;
-			case 2:
-				anim = (NJS_ACTION*)tailsEventAnims[index];
-				tex = &MILES_TEXLIST;
-				break;
-			case 3:
-				anim = (NJS_ACTION*)knucklesEventAnims[index];
-				tex = &KNUCKLES_TEXLIST;
-				break;
-			case 4:
-				anim = (NJS_ACTION*)tikalEventAnims[index];
-				tex = &TIKAL_TEXLIST;
-				break;
-			case 5:
-				anim = (NJS_ACTION*)amyEventAnims[index];
-				tex = &AMY_TEXLIST;
-				break;
-			case 6:
-				anim = (NJS_ACTION*)e102EventAnims[index];
-				tex = &E102_TEXLIST;
-				break;
-			case 7:
-				anim = (NJS_ACTION*)bigEventAnims[index];
-				tex = &BIG_TEXLIST;
-				break;
-			} break;
-		case 2:
-			LoadPVM("EGGROB", &EGGROB_TEXLIST);
-			anim = ZERO_Animations[index].Animation;
-			tex = &EGGROB_TEXLIST;
-			break; //ZERO
-		case 3:
-			LoadPVM("MP_10000_POLICE", &stru_3375ED4);
-			anim = (NJS_ACTION*)ssPoliceAnims[index];
-			tex = &stru_3375ED4;
-			break; //SS Police
-		case 4:
-			LoadPVM("CHAOS0", BOSSCHAOS0_TEXLISTS[0]);
-			anim = BOSSCHAOS0_ACTIONS[index];
-			tex = BOSSCHAOS0_TEXLISTS[0];
-			break; //Chaos 0
-		case 5:
-			LoadPVM("CHAOS6", &CHAOS6_TEXLIST);
-			anim = Chaos6_Animations[index].Animation;
-			tex = &CHAOS6_TEXLIST;
-			break; //Chaos 6
-		case 6:
-			LoadPVM("CHAOS7_0", &CHAOS7_0_TEXLIST);
-			anim = PerfectChaos_AnimList[index].Animation;
-			tex = &CHAOS7_0_TEXLIST;
-			break; //Perfect Chaos
-		case 7:
-			LoadPVM("EV_K_PATYA", ADV03_TEXLISTS[3]);
-			anim = (NJS_ACTION*)pachacamacAnims[index];
-			tex = ADV03_TEXLISTS[3];
-			break; //Pachacamac
-		case 8:
-			LoadPVM("EV_EGGMOBLE0", &EV_EGGMOBLE0_TEXLIST);
-			anim = (NJS_ACTION*)eggMobileAnims[index];
-			tex = &EV_EGGMOBLE0_TEXLIST;
-			break; //Egg Mobile
-		case 9:
-			LoadPVM("EV_ALIFE", ADV03_TEXLISTS[1]);
-			anim = (NJS_ACTION*)tikalChaoAnims[index];
-			tex = ADV03_TEXLISTS[1];
-			break; //Tikal's Chao
-		case 10:
-			LoadPVM("M_EM_GREEN", &M_EM_GREEN_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_GREEN_TEXLIST;
-			break; //Chaos Emeralds 
-		case 11:
-			LoadPVM("M_EM_BLUE", &M_EM_BLUE_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_BLUE_TEXLIST;
-			break; //Chaos Emeralds  
-		case 12:
-			LoadPVM("M_EM_PURPLE", &M_EM_PURPLE_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_PURPLE_TEXLIST;
-			break; //Chaos Emeralds  
-		case 13:
-			LoadPVM("M_EM_RED", &M_EM_RED_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_RED_TEXLIST;
-			break; //Chaos Emeralds  
-		case 14:
-			LoadPVM("M_EM_SKY", &M_EM_SKY_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_SKY_TEXLIST;
-			break; //Chaos Emeralds  
-		case 15:
-			LoadPVM("M_EM_WHITE", &M_EM_WHITE_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_WHITE_TEXLIST;
-			break; //Chaos Emeralds  
-		case 16:
-			LoadPVM("M_EM_YELLOW", &M_EM_YELLOW_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_YELLOW_TEXLIST;
-			break; //Chaos Emeralds  
-		case 17:
-			LoadPVM("M_EM_BLACK", &M_EM_BLACK_TEXLIST);
-			anim = (NJS_ACTION*)emeraldAnims[index];
-			tex = &M_EM_BLACK_TEXLIST;
-			break; //Chaos Emeralds  
-		case 18:
-			LoadPVM("SSPATCAR_BODY", &SSPATCAR_BODY_TEXLIST);
-			anim = (NJS_ACTION*)&stru_2DC028C;
-			tex = &SSPATCAR_BODY_TEXLIST;
-			break;
-		case 39:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[20];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
-			LoadPVM("SS_MIZUGI", ADV00_TEXLISTS[8]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[8];
-			break;
-		case 40:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[21];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
-			LoadPVM("SS_MIZUGI", ADV00_TEXLISTS[8]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[8];
-			break; //SS NPCs
-		case 41:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[22];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
-			LoadPVM("SS_MIZUGI", ADV00_TEXLISTS[8]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[8];
-			break; //SS NPCs
-		case 42:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[23];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5];
-			LoadPVM("SS_BURGER", ADV00_TEXLISTS[9]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[9];
-			break; //SS NPCs
-		case 43:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[24];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index];
-			LoadPVM("SS_EKIIN", ADV00_TEXLISTS[7]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[7];
-			break; //SS NPCs
-		case 44:
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[25];
-			npcEventAnim.motion = SS_PEOPLE_MOTIONS[index];
-			LoadPVM("SS_BURGER", ADV00_TEXLISTS[9]);
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[9];
-			break; //SS NPCs
-		default:
-			break;
-		}
+		LoadPVM(objectTexName.c_str(), tex);
+		EV_ClrAction(EV_GetPlayer(playerNo)); //Clear the animation queue
 
-		if (object >= 19 && object <= 38) {
-			switch (getNPCMotion(object - 19, 3)) {
-			case 0: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index]; break;
-			case 1: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 5]; break;
-			case 2: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 11];  break;
-			case 3: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 18]; break;
-			case 4: npcEventAnim.motion = SS_PEOPLE_MOTIONS[index + 24]; break;
+		if (anim != 0) {
+			if (object == oList_plane) {
+				EV_SetAction(EV_GetPlayer(playerNo), *animplane, tex, (float)animSpeed, loop, 0);
 			}
-
-			LoadPVM("SS_PEOPLE", ADV00_TEXLISTS[6]);
-			npcEventAnim.object = MODEL_SS_PEOPLE_OBJECTS[object - 19];
-			anim = (NJS_ACTION*)&npcEventAnim;
-			tex = ADV00_TEXLISTS[6];
+			else EV_SetAction(EV_GetPlayer(playerNo), anim, tex, (float)animSpeed, loop, 0);			
 		}
-
-		EV_ClrAction(EV_GetPlayer(playerNo));
-		if(anim != 0) EV_SetAction(EV_GetPlayer(playerNo), anim, tex, (float)animSpeed, loop, 0);	
-		//LoadPVM("SONIC", &SONIC_TEXLIST);
-		//if (anim != 0) EV_SetMotion(EV_GetPlayer(playerNo), SONIC_ACTIONS[1]->object, anim->motion, &SONIC_TEXLIST, (float)animSpeed, loop, 0);
 	}
 }
