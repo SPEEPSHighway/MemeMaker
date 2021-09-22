@@ -200,7 +200,7 @@ void npcModeFunction(int player) {
 }
 
 void checkNPCMode(int player) {
-	if (npcMode[player]) {
+	if (npcMode[player] && !DebugMode) {
 		if (!npcAnimOn[player]) {
 			EV_ClrAction(EV_GetPlayer(player));
 			setNewAction = true;
@@ -211,6 +211,7 @@ void checkNPCMode(int player) {
 	}
 	else {
 		if (npcAnimOn[player]) {
+			npcMode[player] = false;
 			EV_ClrAction(EV_GetPlayer(player));
 			npcAnimOn[player] = false;
 			CharObj2Ptrs[player]->PhysicsData.CollisionSize = backup[EntityData1Ptrs[player]->CharID].CollisionSize;

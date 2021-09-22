@@ -6,7 +6,7 @@
 int cameraMode = 0;
 
 static const std::string cameraModeList[] = {
-	"NORMAL", "FREE MOVEMENT", "FOLLOW FROM FIXED POINT", "NO VANILLA CAMERAS"
+	"NORMAL", "FREE CAMERA", "FOLLOW FROM FIXED POINT", "NO VANILLA CAMERAS"
 };
 
 void displayCameraInfo() {
@@ -78,10 +78,10 @@ void doFreeCam(int playerNo, float movementSpeed, AnalogData analogData) {
 				Camera_Data1->Position.z = njSin(v10) * (movementSpeed / 2) + Camera_Data1->Position.z;
 			}
 
-			if (analogData.rightY > 3072.0)  Camera_Data1->Rotation.x = (int)(Camera_Data1->Rotation.x - (movementSpeed * 100));
-			if (analogData.rightY < -3072.0) Camera_Data1->Rotation.x = (int)(Camera_Data1->Rotation.x + (movementSpeed * 100));
-			if (analogData.rightX > 3072.0)  Camera_Data1->Rotation.y = (int)(Camera_Data1->Rotation.y - (movementSpeed * 100));
-			if (analogData.rightX < -3072.0) Camera_Data1->Rotation.y = (int)(Camera_Data1->Rotation.y + (movementSpeed * 100));
+			if (analogData.rightY > 3072.0)  Camera_Data1->Rotation.x = (int)(Camera_Data1->Rotation.x - (movementSpeed * 75));
+			if (analogData.rightY < -3072.0) Camera_Data1->Rotation.x = (int)(Camera_Data1->Rotation.x + (movementSpeed * 75));
+			if (analogData.rightX > 3072.0)  Camera_Data1->Rotation.y = (int)(Camera_Data1->Rotation.y - (movementSpeed * 75));
+			if (analogData.rightX < -3072.0) Camera_Data1->Rotation.y = (int)(Camera_Data1->Rotation.y + (movementSpeed * 75));
 		}
 	}
 }

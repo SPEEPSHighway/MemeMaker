@@ -128,26 +128,27 @@ void writeHeadDisplay(int playerNo) {
 			DisplayDebugString(5, "Custom Head Controls Enabled, Press A to reset.");
 			DisplayDebugStringFormatted(6, "Current Face = %d", faceValue[GetCharacterID(playerNo)]);
 			if (getEye()) DisplayDebugString(7, "Selected Eye = Left");
-			else DisplayDebugString(8, "Selected Eye = Right");
+			else DisplayDebugString(7, "Selected Eye = Right");
 		}
 		else {
-			if (getCanHeadFreeze(playerNo)) DisplayDebugString(5, "Custom Head Controls Disabled, Press A to activate or X to read from face.txt.");
+			if (getCanHeadFreeze(playerNo)) DisplayDebugString(5, "Custom Head Controls Disabled, Press A to activate.");
 			else DisplayDebugString(5, "Eggman, Gamma and Super Sonic do not have this data.");
 
 			if (halfface) DisplayDebugString(6, "Press D-Down to return the speed of face animations to normal."); 
-			else DisplayDebugString(6, "Press D-Up to slow down face animations to match their speed in events.");
+			else DisplayDebugString(6, "Press D-Up to slow down faces and match event speed.");
 
-			if (EntityData1Ptrs[playerNo]->CharID == Characters_Big) DisplayDebugString(7, "NOTE: Big cannot move his head, he has only limited eye movement.");
+			if (EntityData1Ptrs[playerNo]->CharID == Characters_Big) DisplayDebugString(7, "NOTE: Big cannot move his head, has limited eye movement and broken faces.");
 		} break;
 	case 1:
 		DisplayDebugString(5, "Press A to focus the character's head on the camera's current position.");
 		DisplayDebugString(6, "To reset, go to mode 0.");
 		break;
 	case 2:
-		DisplayDebugString(5, "Auto Follow: Camera"); break;
+		DisplayDebugString(5, "Auto Follow: Camera");
+		break;
 	}
-
 	if (headControlsMode[playerNo] > 2) DisplayDebugStringFormatted(6, "Auto Follow: Player %d", headControlsMode[playerNo] - 2);
+	if (getCanHeadFreeze(playerNo))DisplayDebugString(8, "Press X to read from face.txt.");
 }
 
 
@@ -166,8 +167,8 @@ void doHeadFunctions(int playerNo, double moveSpeed, std::string faceFilePath, A
 			std::getline(subFile, customFace);
 			subFile.close();
 		}
-		if (customFace.length() == 0) EV_ClrFace(EV_GetPlayer(playerNo));
-		else EV_SetFace(EV_GetPlayer(playerNo), (char*)customFace.c_str());
+		EV_ClrFace(EV_GetPlayer(playerNo));
+		if(customFace.length() > 0) EV_SetFace(EV_GetPlayer(playerNo), (char*)customFace.c_str());
 	}
 
 

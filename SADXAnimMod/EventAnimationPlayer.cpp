@@ -23,8 +23,6 @@ enum oList
 	oList_froggy,
 	oList_zero,
 	oList_police,
-	oList_chaos0,
-	oList_chaos6,
 	oList_chaos7,
 	oList_pachacamac,
 	oList_eggmobile,
@@ -222,7 +220,12 @@ static const std::string npcList[] = {
 void displayEventAnimInfo() {
 	DisplayDebugString(4, "Event Animation Player");
 	DisplayDebugStringFormatted(5, "Object: %s", objectName.c_str());
-	DisplayDebugStringFormatted(6, "Index: %d", index);
+	if (object != oList_player && object != oList_plane) {
+		DisplayDebugStringFormatted(6, "Index: %d (Pointer: %04X)", index, anim);
+	}
+	else {
+		DisplayDebugStringFormatted(6, "Index: %d", index);
+	}
 	DisplayDebugStringFormatted(7, "Animation Speed: %f", animSpeed);
 	DisplayDebugString(8, "Press A to Play.");
 	DisplayDebugString(9, "Press X+A to Loop.");
@@ -415,20 +418,6 @@ void doEventAnimFunction(int playerNo, AnalogData analogData) {
 		anim = (NJS_ACTION*)ssPoliceAnims[index];
 		tex = &stru_3375ED4;
 		break; //SS Police
-	case oList_chaos0:
-		objectName = "CHAOS 0";
-		size = 17;
-		objectTexName = "CHAOS0";
-		anim = BOSSCHAOS0_ACTIONS[index];
-		tex = BOSSCHAOS0_TEXLISTS[0];
-		break; //Chaos 0
-	case oList_chaos6:
-		objectName = "CHAOS 6";
-		size = Chaos6_Animations_Length;
-		objectTexName = "CHAOS6";
-		anim = Chaos6_Animations[index].Animation;
-		tex = &CHAOS6_TEXLIST;
-		break;
 	case oList_chaos7:
 		objectName = "PERFECT CHAOS";
 		size = PerfectChaos_AnimList_Length;

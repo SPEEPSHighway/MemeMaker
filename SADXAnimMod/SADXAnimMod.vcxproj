@@ -148,6 +148,7 @@
     <ClCompile Include="mod.cpp" />
     <ClCompile Include="NPCMode.cpp" />
     <ClCompile Include="BossSpawner.cpp" />
+    <ClCompile Include="ObjectSpawner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BossSpawner.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="FreeMove.h" />
     <ClInclude Include="HeadEditor.h" />
     <ClInclude Include="NPCMode.h" />
+    <ClInclude Include="ObjectSpawner.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

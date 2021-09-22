@@ -16,14 +16,7 @@ FunctionPointer(void, CreateChaos0, (float pos_x, float pos_y, float pos_z,
 VoidFunc(DeleteChaos0, 0x6EDAB0);
 FunctionPointer(ObjectMaster*, GetChaos0, (), 0x6EDCD0);
 FunctionPointer(void, SetSclChaos0, (float scl_x, float scl_y, float scl_z), 0x6EDDB0);
-
-
-struct FACETBL
-{
-	BYTE nbFrame;
-	BYTE faceNo;
-};
-
+VoidFunc(EV_CameraOn, 0x4303E0);
 DataArray(FACETBL, faceTable, 0x91CEC8, 160);
 
 struct AnalogData {
