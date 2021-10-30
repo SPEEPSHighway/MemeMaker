@@ -11,7 +11,7 @@ static const std::string subMode[] = {
 };
 
 void displayObjectSpawnerInfo() {
-	DisplayDebugString(4, "Object Spawner");
+	DisplayDebugString(4, "Object Spawner (ROUGH)");
 	DisplayDebugString(5, "Press A to spawn.");
 	DisplayDebugStringFormatted(6, "Index: %d (0x%02X)", objindex, objindex);
 
