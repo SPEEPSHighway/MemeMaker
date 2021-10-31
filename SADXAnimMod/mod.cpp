@@ -57,7 +57,7 @@ extern "C"
 		//Stop Pressing B resetting position when exiting the object editor
 		WriteJump((void*)0x49AA1E, (void*)0x49AA2C);
 		WriteJump((void*)0x48AC63, (void*)0X48AC71);
-		WriteJump((void*)0x47A7E8, (void*)0x47A7F4);
+		WriteJump((void*)0x47A7E8, (void*)0x47A814);
 
 		//Load Tails' textures for debug Emerald Coast goal
 		WriteCall((void*)0x4F9FBA, tailsECgoalFix);
