@@ -1321,8 +1321,10 @@ extern "C"
 				if (CharObj2Ptrs[playerNo]->PhysicsData.YOff > 29000.0f) {
 					CharObj2Ptrs[playerNo]->PhysicsData = PhysicsArray[EntityData1Ptrs[playerNo]->CharID];
 				}
-				DestroyTask(selection);
-				selection = 0;
+				if (selection) {
+					DestroyTask(selection);
+					selection = 0;
+				}
 				DebugMode = false;
 			}
 
@@ -1372,8 +1374,10 @@ extern "C"
 	void editorStop() {
 		if (wasFreeCam) WriteData<1>((int*)0x3B2CBA8, 0x07); //Change Camera mode back to Free Camera if the player was in that mode.
 		inEditMode = false;
-		DestroyTask(selection);
-		selection = 0;
+		if (selection) {
+			DestroyTask(selection);
+			selection = 0;
+		}
 		DebugMode = false;
 		CharObj2Ptrs[playerNo]->PhysicsData = PhysicsArray[EntityData1Ptrs[playerNo]->CharID];
 

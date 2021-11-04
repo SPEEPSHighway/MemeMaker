@@ -34,8 +34,10 @@ void displayObjectSpawnerInfo() {
 
 void doObjectSpawner(int playerNo) {
 	if (!selection || (ObjectFuncPtr)selection->exec != CurrentObjectList->List[objindex].LoadSub) {
-		DestroyTask(selection);
-		selection = 0;
+		if (selection) {
+			DestroyTask(selection);
+			selection = 0;
+		}
 		selection = (task*)LoadObject((LoadObj)CurrentObjectList->List[objindex].Flags, CurrentObjectList->List[objindex].ObjectListIndex, CurrentObjectList->List[objindex].LoadSub);
 		OBJ_CONDITION* selectionocp = new OBJ_CONDITION();
 		selection->ocp = selectionocp;
