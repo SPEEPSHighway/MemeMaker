@@ -231,7 +231,7 @@ void displayEventAnimInfo() {
 	DisplayDebugString(9, "Press X+A to Loop.");
 }
 
-void doEventAnimFunction(int playerNo, AnalogData analogData) {
+void doEventAnimFunction(int playerNo, AnalogData analogData) {	
 	DataPointer(NJS_TEXLIST, stru_3375ED4, 0x3375ED4);
 	int loop = 0;
 	int size = 0;

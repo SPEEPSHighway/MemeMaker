@@ -32,12 +32,29 @@ void displayObjectSpawnerInfo() {
 
 }
 
-void doObjectSpawner(int playerNo) {
+int doObjectSpawner(int playerNo) {
+	if (CurrentLevel >= 39 && CurrentLevel <= 41) {
+		DisplayDebugString(8, "DISABLED IN CHAO GARDEN (Broken)");
+		return 0;
+	}
+
 	if (!selection || (ObjectFuncPtr)selection->exec != CurrentObjectList->List[objindex].LoadSub) {
 		if (selection) {
 			DestroyTask(selection);
 			selection = 0;
 		}
+
+		if (objindex == 18 && CurrentLevel == LevelIDs_SkyChase2) {
+			LoadPVM("SHOOTING1", &SHOOTING1_TEXLIST);
+		}
+
+		//Big's fish crash the game in other acts.
+		if(CurrentLevel == LevelIDs_TwinklePark){
+			LoadPVM("MECHA", &MECHA_TEXLIST);
+			LoadPVM("PIRANIA", &PIRANIA_TEXLIST);
+			LoadPVM("NEW_BB", &NEW_BB_TEXLIST);
+		}
+
 		selection = (task*)LoadObject((LoadObj)CurrentObjectList->List[objindex].Flags, CurrentObjectList->List[objindex].ObjectListIndex, CurrentObjectList->List[objindex].LoadSub);
 		OBJ_CONDITION* selectionocp = new OBJ_CONDITION();
 		selection->ocp = selectionocp;
@@ -120,12 +137,18 @@ void doObjectSpawner(int playerNo) {
 		}
 		break;
 	case Buttons_A:
-			task* newObject = (task*)LoadObject((LoadObj)CurrentObjectList->List[objindex].Flags, CurrentObjectList->List[objindex].ObjectListIndex, CurrentObjectList->List[objindex].LoadSub);
-			OBJ_CONDITION* newObjectocp = new OBJ_CONDITION();
-			newObject->ocp = newObjectocp;
-			newObject->twp->pos = selection->twp->pos;
-			newObject->twp->ang = selection->twp->ang;
-			newObject->twp->scl = selection->twp->scl;
+		task* newObject = (task*)LoadObject((LoadObj)CurrentObjectList->List[objindex].Flags, CurrentObjectList->List[objindex].ObjectListIndex, CurrentObjectList->List[objindex].LoadSub);
+		OBJ_CONDITION* newObjectocp = new OBJ_CONDITION();
+		newObject->ocp = newObjectocp;
+		newObject->twp->pos = selection->twp->pos;
+		newObject->twp->ang = selection->twp->ang;
+		newObject->twp->scl = selection->twp->scl;
+
+		//Cart spawned in Twinkle Circuit.
+		if (objindex == 15 && CurrentLevel == LevelIDs_TwinkleCircuit) {
+			return 1;
+		}
 		break;
 	}
+	return 0;
 }

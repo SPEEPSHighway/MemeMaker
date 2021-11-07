@@ -30,14 +30,13 @@ extern "C"
 	int playerNo;
 	std::string faceFilePath;
 	double movementSpeed = 5.0;
-	bool isEditorEnabled();
 	void editorStart();
 	void editorStop();
 	void replaceAllDebugChecks();
 	bool checkFontSize();
-	int isObjectDebug(task* tp); 
+	int isObjectDebug(task* tp);
 	int tailsECgoalFix(task* tp);
-
+	void destroyCart();
 	//Perfect Chaos: PerfectChaos_AnimList
 	void doSpeedModifier();
 	__declspec(dllexport) ModInfo SADXModInfo = { ModLoaderVer };
@@ -65,7 +64,7 @@ extern "C"
 		initFaceTableBackup();
 	}
 
-	int tailsECgoalFix(task *tp) {
+	int tailsECgoalFix(task* tp) {
 		if (!VerifyTexList(&MILES_TEXLIST)) {
 			LoadPVM("MILES", &MILES_TEXLIST);
 		}
@@ -226,8 +225,8 @@ extern "C"
 		WriteCall((void*)0x4FB7A0, isObjectDebug);
 		WriteCall((void*)0x4FB810, isObjectDebug);
 		WriteCall((void*)0x4FBA1C, isObjectDebug);
-	// 	WriteCall((void*)0x4FBBA3, isObjectDebug); //Whale in Emerald Coast. Crashes for some reason so I've disabled it.
-	//	WriteCall((void*)0x4FBDD3, isObjectDebug);
+		// 	WriteCall((void*)0x4FBBA3, isObjectDebug); //Whale in Emerald Coast. Crashes for some reason so I've disabled it.
+		//	WriteCall((void*)0x4FBDD3, isObjectDebug);
 		WriteCall((void*)0x4FC4FC, isObjectDebug);
 		WriteCall((void*)0x4FC58C, isObjectDebug);
 		WriteCall((void*)0x4FC9F7, isObjectDebug);
@@ -1065,7 +1064,7 @@ extern "C"
 		WriteCall((void*)0x64085A, isObjectDebug);
 		WriteCall((void*)0x6FE65D, isObjectDebug);
 		WriteCall((void*)0x70115D, isObjectDebug);
-		WriteCall((void*)0x7160AC, isObjectDebug);
+		//		WriteCall((void*)0x7160AC, isObjectDebug);
 		WriteCall((void*)0x716CD0, isObjectDebug);
 		WriteCall((void*)0x71B8AE, isObjectDebug);
 		WriteCall((void*)0x71BBB6, isObjectDebug);
@@ -1083,7 +1082,7 @@ extern "C"
 		WriteCall((void*)0x71CFA6, isObjectDebug);
 		WriteCall((void*)0x71D054, isObjectDebug);
 		WriteCall((void*)0x71D0F8, isObjectDebug);
-		WriteCall((void*)0x72976B, isObjectDebug);
+		//	WriteCall((void*)0x72976B, isObjectDebug);
 		WriteCall((void*)0x729971, isObjectDebug);
 		WriteCall((void*)0x72BD1E, isObjectDebug);
 		WriteCall((void*)0x74C876, isObjectDebug);
@@ -1151,22 +1150,22 @@ extern "C"
 		WriteCall((void*)0x7B1158, isObjectDebug);
 		WriteCall((void*)0x7B13DE, isObjectDebug);
 		WriteJump((void*)0x7B14F0, isObjectDebug);
-	/*	WriteCall((void*)0x7F0FE7, isObjectDebug);
-		WriteData((BYTE*)0x7F0FE7, (BYTE)0x0);
-		WriteCall((void*)0x7F103B, isObjectDebug);
-		WriteData((BYTE*)0x7F103B, (BYTE)0x0);
-		WriteCall((void*)0x7F122F, isObjectDebug);
-		WriteData((BYTE*)0x7F122F, (BYTE)0x0);
-		WriteCall((void*)0x7F124F, isObjectDebug);
-		WriteData((BYTE*)0x7F124F, (BYTE)0x0);
-		WriteCall((void*)0x7F1253, isObjectDebug);
-		WriteData((BYTE*)0x7F1253, (BYTE)0x0);
-		WriteCall((void*)0x7F1283, isObjectDebug);
-		WriteData((BYTE*)0x7F1283, (BYTE)0x0);
-		WriteCall((void*)0x7F1347, isObjectDebug);
-		WriteData((BYTE*)0x7F1347, (BYTE)0x0);
-		WriteCall((void*)0x7F139B, isObjectDebug);
-		WriteData((BYTE*)0x7F139B, (BYTE)0x0);// I don't know what this is and it crashes FMVs, so dummied.*/
+		/*	WriteCall((void*)0x7F0FE7, isObjectDebug);
+			WriteData((BYTE*)0x7F0FE7, (BYTE)0x0);
+			WriteCall((void*)0x7F103B, isObjectDebug);
+			WriteData((BYTE*)0x7F103B, (BYTE)0x0);
+			WriteCall((void*)0x7F122F, isObjectDebug);
+			WriteData((BYTE*)0x7F122F, (BYTE)0x0);
+			WriteCall((void*)0x7F124F, isObjectDebug);
+			WriteData((BYTE*)0x7F124F, (BYTE)0x0);
+			WriteCall((void*)0x7F1253, isObjectDebug);
+			WriteData((BYTE*)0x7F1253, (BYTE)0x0);
+			WriteCall((void*)0x7F1283, isObjectDebug);
+			WriteData((BYTE*)0x7F1283, (BYTE)0x0);
+			WriteCall((void*)0x7F1347, isObjectDebug);
+			WriteData((BYTE*)0x7F1347, (BYTE)0x0);
+			WriteCall((void*)0x7F139B, isObjectDebug);
+			WriteData((BYTE*)0x7F139B, (BYTE)0x0);// I don't know what this is and it crashes FMVs, so dummied.*/
 	}
 
 	int isObjectDebug(task* tp) {
@@ -1178,7 +1177,8 @@ extern "C"
 			else {
 				return 0;
 			}
-		} else {
+		}
+		else {
 			return 0;
 		}
 	}
@@ -1189,6 +1189,10 @@ extern "C"
 			DisplayDebugString(1, "MEME MAKER (by Speeps)");
 			DisplayDebugStringFormatted(2, "Mode = %d", mode);
 			DisplayDebugStringFormatted(3, "Movement Speed = %0.2f", movementSpeed);
+
+			if ((CurrentLevel == LevelIDs_SkyChase1 || CurrentLevel == LevelIDs_SkyChase2) && (mode >= 2 && mode <= 4)) {
+				DisplayDebugString(11, "(Doesn't do anything in Sky Chase)");
+			}
 
 			switch (mode) {
 			case 0:
@@ -1232,7 +1236,7 @@ extern "C"
 	{
 		if (GameState == 15) { //Action check will crash the game on the main menu.
 			for (int i = 0; i < GetPlayerCount(); i++) {
-				if (isEditorEnabled() && ControllerPointers[i]->PressedButtons & Buttons_Y && ControllerPointers[i]->NotHeldButtons & Buttons_Z) {
+				if (ControllerPointers[i]->PressedButtons & Buttons_Y && ControllerPointers[i]->NotHeldButtons & Buttons_Z) {
 					playerNo = i;
 					if (!inEditMode) editorStart();
 					else editorStop();
@@ -1270,6 +1274,7 @@ extern "C"
 			if (checkFontSize()) SetDebugFontSize((unsigned short)(((float)HorizontalResolution / 640.0f) * 8)); //Helps prevent mod conflicts
 			if (EntityData1Ptrs[0]->CharID & Characters_Gamma) TimeMinutes = 2; //Stop Gamma dying
 			CharObj2Ptrs[0]->UnderwaterTime = 0; //Stop 1P from drowning
+
 			EntityData1Ptrs[playerNo]->Action = 99; //Compatibility with CharacterSelect
 			DisablePause(); //Text Box will enable pause menu afterwards so this needs to run globally.
 			checkCameraMode();
@@ -1284,7 +1289,6 @@ extern "C"
 			switch (mode) {
 			case 0:
 				doBasicAnimation(playerNo);
-				doPlayerMovement(playerNo, movementSpeed, analogData);
 				break;
 			case 1:
 				doFreeCam(playerNo, movementSpeed, analogData);
@@ -1294,20 +1298,23 @@ extern "C"
 				break;
 			case 3:
 				doEventAnimFunction(playerNo, analogData);
-				doPlayerMovement(playerNo, movementSpeed, analogData);
 				break;
 			case 4:
 				doNPCModeDisplay(playerNo);
-				doPlayerMovement(playerNo, movementSpeed, analogData);
 				break;
 			case 5:
 				doBossSpawner(playerNo);
-				doPlayerMovement(playerNo, movementSpeed, analogData);
 				break;
 			case 6:
-				doObjectSpawner(playerNo);
-				doPlayerMovement(playerNo, movementSpeed, analogData);
+				//Needs to auto-exit if a cart gets spawned in Twinkle Circuit.
+				if (doObjectSpawner(playerNo) == 1){
+					editorStop();
+				}
 				break;
+			}
+
+			if (mode != 1 && mode != 2) {
+				doPlayerMovement(playerNo, movementSpeed, analogData);
 			}
 
 			if (mode == 6 && inEditMode) {
@@ -1355,6 +1362,17 @@ extern "C"
 		else wasFreeCam = false;
 		inEditMode = true;
 
+		if (CurrentLevel == LevelIDs_TwinkleCircuit) {
+			if (taskOfPlayerOn) {
+				cart_data = (ENEMY_CART_DATA*)taskOfPlayerOn->awp->work.ul[0];
+				cart_data->vitality = 0;
+			}
+		}
+
+		if (GetLevelAndAct() == LevelAndActIDs_TwinklePark1) {
+			destroyCart();
+		}
+
 		//Reset everything.
 		setRunningAnim(playerNo);
 		movementSpeed = 5.0;
@@ -1372,6 +1390,11 @@ extern "C"
 	}
 
 	void editorStop() {
+
+		if (CurrentLevel == LevelIDs_TwinkleCircuit) {
+			destroyCart();
+		}
+
 		if (wasFreeCam) WriteData<1>((int*)0x3B2CBA8, 0x07); //Change Camera mode back to Free Camera if the player was in that mode.
 		inEditMode = false;
 		if (selection) {
@@ -1382,17 +1405,18 @@ extern "C"
 		CharObj2Ptrs[playerNo]->PhysicsData = PhysicsArray[EntityData1Ptrs[playerNo]->CharID];
 
 		//CharObj2Ptrs[playerNo]->AnimationThing.Index = 0;
-
 		switch (EntityData1Ptrs[playerNo]->CharID) {
 		case Characters_Sonic:
 			if (CharObj2Ptrs[playerNo]->AnimationThing.Index >= 102 && CharObj2Ptrs[playerNo]->AnimationThing.Index <= 124) {
 				EntityData1Ptrs[playerNo]->Action = 62;
-			} else if (CharObj2Ptrs[playerNo]->AnimationThing.Index == 125) {
+			}
+			else if (CharObj2Ptrs[playerNo]->AnimationThing.Index == 125) {
 				EntityData1Ptrs[playerNo]->Action = 69;
 				if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Status = Status_HoldObject;
 				else EntityData1Ptrs[playerNo]->Status = EntityData1Ptrs[playerNo]->Status & ~0x2200 | 0x500;
 				CharObj2Ptrs[playerNo]->SpindashSpeed = 5.0;
-			} else {
+			}
+			else {
 				EntityData1Ptrs[playerNo]->Action = 1;
 				if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Status = Status_HoldObject;
 				else EntityData1Ptrs[playerNo]->Status = 0;
@@ -1401,12 +1425,14 @@ extern "C"
 		case Characters_Tails:
 			if (CharObj2Ptrs[playerNo]->AnimationThing.Index >= 107 && CharObj2Ptrs[playerNo]->AnimationThing.Index <= 127) {
 				EntityData1Ptrs[playerNo]->Action = 48;
-			} else if (CharObj2Ptrs[playerNo]->AnimationThing.Index == 128) {
+			}
+			else if (CharObj2Ptrs[playerNo]->AnimationThing.Index == 128) {
 				EntityData1Ptrs[playerNo]->Action = 55;
 				if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Status = Status_HoldObject;
 				else EntityData1Ptrs[playerNo]->Status = EntityData1Ptrs[playerNo]->Status & ~0x2200 | 0x500;
 				CharObj2Ptrs[playerNo]->SpindashSpeed = 5.0;
-			} else {
+			}
+			else {
 				EntityData1Ptrs[playerNo]->Action = 1;
 				if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Status = Status_HoldObject;
 				else EntityData1Ptrs[playerNo]->Status = 0;
@@ -1429,12 +1455,6 @@ extern "C"
 		EnablePause();
 	}
 
-	bool isEditorEnabled() {
-		if (EntityData1Ptrs[playerNo]->Action == 45) return false;
-		if (CurrentLevel == LevelIDs_SkyChase1 || CurrentLevel == LevelIDs_SkyChase2) return false;
-		return true;
-	}
-
 	void doSpeedModifier() {
 		if (ControllerPointers[playerNo]->HeldButtons & Buttons_X && mode != 3) {
 			if (analogData.leftX > 30072.0) {
@@ -1445,6 +1465,15 @@ extern "C"
 				if (movementSpeed > 0.1 && movementSpeed < 16.0) movementSpeed = movementSpeed - 0.1;
 				if (movementSpeed >= 16.0) movementSpeed = movementSpeed - 1.0;
 			}
+		}
+	}
+
+	void destroyCart() {
+		if (taskOfPlayerOn) {
+			((task*)PlayerPtrs[0])->twp->cwp->info->a = cart_data->player_colli_r;
+			GetOutOfCartP(0, 0.0f, 0.0f, 0.0f);
+			FreeTask(taskOfPlayerOn);
+			taskOfPlayerOn = 0;
 		}
 	}
 }

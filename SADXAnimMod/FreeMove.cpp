@@ -16,7 +16,7 @@ int getAnimLimit(int playerNo) {
 	case 5: return 101;
 	case 6: return 90;
 	case 7: return 104;
-	default: break;
+	default: return 0;
 	}
 }
 
@@ -57,7 +57,6 @@ void doBasicAnimation(int playerNo) {
 
 void doPlayerMovement(int playerNo, float movementSpeed, AnalogData analogData) {
 	//AKA Shamelessly copy the debug movement code lol
-
 	if (ControllerPointers[playerNo]->HeldButtons & Buttons_X) {
 		switch (subIndex) {
 		case 0:

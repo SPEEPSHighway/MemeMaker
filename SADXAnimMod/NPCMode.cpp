@@ -99,9 +99,9 @@ int getNPCMotion(int index, int anim) {
 		if (index >= 20 && index <= 23) return 1;
 		break;
 	default:
-		return 0;
 		break;
 	}
+	return 0;
 }
 
 void npcModeFunction(int player) {
