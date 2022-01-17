@@ -1438,8 +1438,14 @@ extern "C"
 				else EntityData1Ptrs[playerNo]->Status = 0;
 			}
 			break;
+		case Characters_Big:
+			if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Action = 17;
+			else EntityData1Ptrs[playerNo]->Action = 1;
+			break;
 		default:
 			EntityData1Ptrs[playerNo]->Action = 1;
+			if (CharObj2Ptrs[playerNo]->ObjectHeld) EntityData1Ptrs[playerNo]->Status = Status_HoldObject;
+			else EntityData1Ptrs[playerNo]->Status = 0;
 		}
 
 		if (getCamMode() == 0) resetCamera();
